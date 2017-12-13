@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_selected="true" android:drawable="@drawable/story_publish_icon_flashlight_selected"></item>
+    <item android:state_selected="false" android:drawable="@drawable/story_publish_icon_flashlight_normal"></item>
+</selector>
