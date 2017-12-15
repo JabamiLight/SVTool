@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 
 import com.example.example.utils.ScreenUtils;
-import com.example.ty.svtoolib.data.RenderBean;
+import com.wuwang.aavt.media.RenderBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +47,7 @@ public class BreakPointView extends View {
     private long timeStep=50;
 
     private float space;
+    private ValueAnimator animator;
 
     public BreakPointView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -61,17 +62,20 @@ public class BreakPointView extends View {
         startAnim();
     }
 
+    public void setRecord(boolean record) {
+        this.record = record;
+    }
 
     public void addBean(){
-        renderBeans.add(new RenderBean(0));
+//        renderBeans.add(new RenderBean(0));
     }
 
     public void addTime(){
-        if(renderBeans.isEmpty()){
-            renderBeans.add(new RenderBean(0));
-        }
-        renderBeans.get(renderBeans.size()-1).addTime(timeStep);
-        postInvalidate();
+//        if(renderBeans.isEmpty()){
+//            renderBeans.add(new RenderBean(0));
+//        }
+//        renderBeans.get(renderBeans.size()-1).addTime(timeStep);
+//        postInvalidate();
 
     }
 
@@ -80,7 +84,7 @@ public class BreakPointView extends View {
     }
 
     private void startAnim() {
-        ValueAnimator animator = ValueAnimator.ofInt(0, 2);
+         animator = ValueAnimator.ofInt(0, 2);
         animator.setDuration(500);
         animator.setRepeatMode(ValueAnimator.REVERSE);
         animator.setInterpolator(new LinearInterpolator());
@@ -104,13 +108,13 @@ public class BreakPointView extends View {
         float startWidth = 0;
         if (renderBeans != null && !renderBeans.isEmpty()) {
             for (RenderBean renderBean : renderBeans) {
-                float longWidht = renderBean.getTime() / (float) totalMilles * getWidth();
-                float endWidth = startWidth + longWidht;
-                canvas.drawLine(startWidth, getHeight() / 2, endWidth, getHeight() / 2, progressPaint);
-                startWidth += longWidht+space;
+//                float longWidht = renderBean.getTime() / (float) totalMilles * getWidth();
+//                float endWidth = startWidth + longWidht;
+//                canvas.drawLine(startWidth, getHeight() / 2, endWidth, getHeight() / 2, progressPaint);
+//                startWidth += longWidht+space;
             }
         }
-        if (showInt == 1 && !record) {
+        if (showInt == 1 || record) {
             canvas.drawLine(startWidth, getHeight() / 2, startWidth+flashWidth, getHeight() / 2, flashPaint);
         }
     }
