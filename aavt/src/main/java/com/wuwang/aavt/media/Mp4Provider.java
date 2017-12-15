@@ -120,7 +120,7 @@ public class Mp4Provider implements ITextureProvider {
                     isVideoExtractorEnd = true;
                 }
                 mExtractor.advance();
-                Log.d("tedu", "glRun: "+"读取");
+
 
             }
         }

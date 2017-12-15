@@ -99,6 +99,11 @@ public class Mp4MuxStore implements IHardStore {
     }
 
     @Override
+    public void writeToMux() {
+
+    }
+
+    @Override
     public void close() throws AvException {
         synchronized (LOCK){
             try {

@@ -10,6 +10,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.example.view.BreakPointView;
 import com.wuwang.aavt.av.CameraRecorder2;
@@ -135,5 +136,6 @@ public class CameraRecordActivity extends AppCompatActivity {
 
     public void done(View view) {
         mCamera.stopRecord();
+        Toast.makeText(this, "停止录制", Toast.LENGTH_SHORT).show();
     }
 }

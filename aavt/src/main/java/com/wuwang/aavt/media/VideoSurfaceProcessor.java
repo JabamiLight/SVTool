@@ -19,7 +19,6 @@ import android.graphics.SurfaceTexture;
 import android.opengl.EGL14;
 import android.opengl.GLES20;
 import android.os.Build;
-import android.util.Log;
 
 import com.wuwang.aavt.core.IObserver;
 import com.wuwang.aavt.core.Observable;
@@ -159,10 +158,9 @@ public class VideoSurfaceProcessor{
         AvLog.d(TAG,"Processor While Loop Entry");
         //要求数据源必须同步填充SurfaceTexture，填充完成前等待
         while (!mProvider.frame()&&mGLThreadFlag){
-            Log.d("tedu", "glRun: "+"绘制");
             mInputSurfaceTexture.updateTexImage();
             mInputSurfaceTexture.getTransformMatrix(mRenderer.getTextureMatrix());
-            AvLog.d(TAG,"timestamp:"+ mInputSurfaceTexture.getTimestamp());
+//            AvLog.d(TAG,"timestamp:"+ mInputSurfaceTexture.getTimestamp());
             sourceFrame.bindFrameBuffer(mSourceWidth, mSourceHeight);
             GLES20.glViewport(0,0, mSourceWidth, mSourceHeight);
             mRenderer.draw(mInputSurfaceTextureId);

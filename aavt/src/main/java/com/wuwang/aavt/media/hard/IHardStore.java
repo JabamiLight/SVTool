@@ -31,4 +31,5 @@ public interface IHardStore extends IStore<MediaFormat,HardMediaData> {
      */
     void setOutputPath(String path);
 
+    void writeToMux();
 }

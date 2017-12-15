@@ -136,8 +136,12 @@ public class CameraRecorder2 {
         mSoundRecord.stop();
         mSurfaceStore.close();
         try {
+            Thread.sleep(2000);
+            mMuxer.writeToMux();
             mMuxer.close();
         } catch (AvException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
