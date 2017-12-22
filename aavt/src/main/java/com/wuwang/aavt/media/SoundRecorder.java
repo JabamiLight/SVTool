@@ -39,6 +39,8 @@ public class SoundRecorder {
     private long startTime=0;
     private boolean stopFlag=false;
     private Executors mExec;
+    private boolean pause;
+
 
     public SoundRecorder(IHardStore store){
         this.mStore=store;
@@ -46,7 +48,9 @@ public class SoundRecorder {
 
     public void configure(){
     }
-
+    public void setPause(boolean pause) {
+        this.pause = pause;
+    }
     public void start(){
         if(!isStarted){
             stopFlag=false;
@@ -107,7 +111,7 @@ public class SoundRecorder {
             while (true){
                 int outputIndex=mAudioEncoder.dequeueOutputBuffer(info,TIME_OUT);
                 if(outputIndex>=0){
-                    if(mStore!=null){
+                    if(mStore!=null&&!pause){
                         mStore.addData(mAudioTrack,new HardMediaData(CodecUtil.getOutputBuffer(mAudioEncoder,outputIndex),info));
                     }
                     mAudioEncoder.releaseOutputBuffer(outputIndex,false);

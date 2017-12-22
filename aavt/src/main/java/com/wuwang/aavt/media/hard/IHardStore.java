@@ -16,6 +16,10 @@ package com.wuwang.aavt.media.hard;
 import android.media.MediaFormat;
 
 import com.wuwang.aavt.media.av.IStore;
+import com.wuwang.aavt.view.BreakPointView;
+
+import java.util.List;
+import java.util.Queue;
 
 /**
  * IHardStore 硬编码的媒体文件存储器
@@ -32,4 +36,10 @@ public interface IHardStore extends IStore<MediaFormat,HardMediaData> {
     void setOutputPath(String path);
 
     void writeToMux();
+
+    void addSection();
+
+    Queue<List<HardMediaData>> getDataQueue();
+
+    void setSectionView(BreakPointView sectionView);
 }

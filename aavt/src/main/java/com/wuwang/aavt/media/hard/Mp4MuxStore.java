@@ -20,8 +20,11 @@ import android.os.Build;
 import android.util.Log;
 
 import com.wuwang.aavt.media.av.AvException;
+import com.wuwang.aavt.view.BreakPointView;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Queue;
 
 /**
  * Mp4MuxStore
@@ -100,6 +103,21 @@ public class Mp4MuxStore implements IHardStore {
 
     @Override
     public void writeToMux() {
+
+    }
+
+    @Override
+    public void addSection() {
+
+    }
+
+    @Override
+    public Queue<List<HardMediaData>> getDataQueue() {
+        return null;
+    }
+
+    @Override
+    public void setSectionView(BreakPointView sectionView) {
 
     }
 

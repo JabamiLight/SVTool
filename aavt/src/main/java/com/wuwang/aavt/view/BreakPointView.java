@@ -1,4 +1,4 @@
-package com.example.example.view;
+package com.wuwang.aavt.view;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -9,11 +9,12 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
-import com.example.example.utils.ScreenUtils;
-import com.wuwang.aavt.media.RenderBean;
+import com.wuwang.aavt.media.hard.HardMediaData;
+import com.wuwang.aavt.utils.ScreenUtils;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 
 /*
 * Created by TY on 2017/12/13.
@@ -39,12 +40,12 @@ public class BreakPointView extends View {
     /**
      * 时间数据
      */
-    private List<RenderBean> renderBeans=new ArrayList<>();
+    private Queue<List<HardMediaData>> renderBeans ;
 
     /**
      * 时间间隔
      */
-    private long timeStep=50;
+    private long timeStep = 50;
 
     private float space;
     private ValueAnimator animator;
@@ -66,11 +67,11 @@ public class BreakPointView extends View {
         this.record = record;
     }
 
-    public void addBean(){
+    public void addBean() {
 //        renderBeans.add(new RenderBean(0));
     }
 
-    public void addTime(){
+    public void addTime() {
 //        if(renderBeans.isEmpty()){
 //            renderBeans.add(new RenderBean(0));
 //        }
@@ -79,12 +80,13 @@ public class BreakPointView extends View {
 
     }
 
-    public void setRenderBeans(List<RenderBean> renderBeans) {
+    public void setRenderBeans(Queue<List<HardMediaData>> renderBeans) {
         this.renderBeans = renderBeans;
+        postInvalidate();
     }
 
     private void startAnim() {
-         animator = ValueAnimator.ofInt(0, 2);
+        animator = ValueAnimator.ofInt(0, 2);
         animator.setDuration(500);
         animator.setRepeatMode(ValueAnimator.REVERSE);
         animator.setInterpolator(new LinearInterpolator());
@@ -107,15 +109,21 @@ public class BreakPointView extends View {
 
         float startWidth = 0;
         if (renderBeans != null && !renderBeans.isEmpty()) {
-            for (RenderBean renderBean : renderBeans) {
-//                float longWidht = renderBean.getTime() / (float) totalMilles * getWidth();
-//                float endWidth = startWidth + longWidht;
-//                canvas.drawLine(startWidth, getHeight() / 2, endWidth, getHeight() / 2, progressPaint);
-//                startWidth += longWidht+space;
+            Iterator<List<HardMediaData>> it = renderBeans.iterator();
+            while (it.hasNext()) {
+                List<HardMediaData> list = it.next();
+                if(list==null||list.isEmpty()) continue;
+                long time = list.get(list.size() - 1).info.presentationTimeUs - list.get(0).info
+                        .presentationTimeUs;
+                float longWidht = time/1000 / (float) totalMilles * getWidth();
+                float endWidth = startWidth + longWidht;
+                canvas.drawLine(startWidth, getHeight() / 2, endWidth, getHeight() / 2, progressPaint);
+                startWidth += longWidht + space;
             }
         }
         if (showInt == 1 || record) {
-            canvas.drawLine(startWidth, getHeight() / 2, startWidth+flashWidth, getHeight() / 2, flashPaint);
+            canvas.drawLine(startWidth, getHeight() / 2, startWidth + flashWidth, getHeight() / 2,
+                    flashPaint);
         }
     }
 

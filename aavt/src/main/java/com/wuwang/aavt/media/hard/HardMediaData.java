@@ -46,7 +46,7 @@ public class HardMediaData {
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public HardMediaData copy(){
-        ByteBuffer buffer=ByteBuffer.allocate(data.capacity());
+        ByteBuffer buffer=ByteBuffer.allocateDirect(data.capacity());
         MediaCodec.BufferInfo info=new MediaCodec.BufferInfo();
         HardMediaData data=new HardMediaData(buffer,info);
         copyTo(data);

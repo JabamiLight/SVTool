@@ -21,8 +21,13 @@ import com.wuwang.aavt.media.SurfaceEncoder;
 import com.wuwang.aavt.media.SurfaceShower;
 import com.wuwang.aavt.media.VideoSurfaceProcessor;
 import com.wuwang.aavt.media.av.AvException;
+import com.wuwang.aavt.media.hard.HardMediaData;
 import com.wuwang.aavt.media.hard.IHardStore;
 import com.wuwang.aavt.media.hard.StrengthenMp4MuxStore;
+import com.wuwang.aavt.view.BreakPointView;
+
+import java.util.List;
+import java.util.Queue;
 
 /**
  * CameraRecorder2 相机预览及录制工具类
@@ -136,7 +141,7 @@ public class CameraRecorder2 {
         mSoundRecord.stop();
         mSurfaceStore.close();
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
             mMuxer.writeToMux();
             mMuxer.close();
         } catch (AvException e) {
@@ -146,4 +151,22 @@ public class CameraRecorder2 {
         }
     }
 
+    public void pause(boolean isPause){
+        mSurfaceStore.setPause(isPause);
+        mSoundRecord.setPause(isPause);
+    }
+
+    public void addData(){
+        mMuxer.addSection();
+    }
+    public Queue<List<HardMediaData>> getData(){
+        return mMuxer.getDataQueue();
+    }
+
+
+
+
+    public void setSectionView(BreakPointView sectionView) {
+        mMuxer.setSectionView(sectionView);
+    }
 }

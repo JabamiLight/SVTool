@@ -20,8 +20,13 @@ import android.os.Build;
 
 import com.wuwang.aavt.log.AvLog;
 import com.wuwang.aavt.media.av.AvException;
+import com.wuwang.aavt.view.BreakPointView;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -45,13 +50,15 @@ public class StrengthenMp4MuxStore implements IHardStore {
     private int videoTrack = -1;
     private final Object Lock = new Object();
     private boolean muxStarted = false;
-    private LinkedBlockingQueue<HardMediaData> cache;
+    private ArrayDeque<List<HardMediaData>> videoCache, audioCache;
     private Recycler<HardMediaData> recycler;
     private ExecutorService exec;
+    private BreakPointView sectionView;
 
     public StrengthenMp4MuxStore(boolean av) {
         this.av = av;
-        cache = new LinkedBlockingQueue<>(3000);
+        videoCache = new ArrayDeque<>(30);
+        audioCache = new ArrayDeque<>(30);
         recycler = new Recycler<>();
         exec = new ThreadPoolExecutor(1, 1, 1, TimeUnit.MINUTES,
                 new LinkedBlockingQueue<Runnable>(16), Executors.defaultThreadFactory());
@@ -71,34 +78,34 @@ public class StrengthenMp4MuxStore implements IHardStore {
         }
     }
 
-    private void muxRun() {
-        AvLog.d(tag, "enter mux loop");
-        while (muxStarted) {
-            try {
-                HardMediaData data = cache.poll(1, TimeUnit.SECONDS);
-                synchronized (Lock) {
-                    AvLog.d(tag, "data is null?" + (data == null));
-                    if (muxStarted && data != null) {
-                        mMuxer.writeSampleData(data.index, data.data, data.info);
-                        recycler.put(data.index, data);
-                    }
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            mMuxer.stop();
-            AvLog.d(tag, "muxer stoped success");
-            mMuxer.release();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-            AvLog.e("stop muxer failed!!!");
-        }
-        mMuxer = null;
-        cache.clear();
-        recycler.clear();
-    }
+//    private void muxRun() {
+//        AvLog.d(tag, "enter mux loop");
+//        while (muxStarted) {
+//            try {
+//                HardMediaData data = cache.poll(1, TimeUnit.SECONDS);
+//                synchronized (Lock) {
+//                    AvLog.d(tag, "data is null?" + (data == null));
+//                    if (muxStarted && data != null) {
+//                        mMuxer.writeSampleData(data.index, data.data, data.info);
+//                        recycler.put(data.index, data);
+//                    }
+//                }
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        try {
+//            mMuxer.stop();
+//            AvLog.d(tag, "muxer stoped success");
+//            mMuxer.release();
+//        } catch (IllegalStateException e) {
+//            e.printStackTrace();
+//            AvLog.e("stop muxer failed!!!");
+//        }
+//        mMuxer = null;
+//        cache.clear();
+//        recycler.clear();
+//    }
 
     @Override
     public int addTrack(MediaFormat mediaFormat) {
@@ -147,17 +154,32 @@ public class StrengthenMp4MuxStore implements IHardStore {
             AvLog.d(tag, "addData->" + track + "/" + audioTrack + "/" + videoTrack);
             hardMediaData.index = track;
             if (track == audioTrack || track == videoTrack) {
-                HardMediaData d = recycler.poll(track);
-                if (d == null) {
-                    d = hardMediaData.copy();
-                } else {
-                    hardMediaData.copyTo(d);
+//                HardMediaData d = recycler.poll(track);
+//                if (d == null) {
+//                    d = hardMediaData.copy();
+//                } else {
+//                    hardMediaData.copyTo(d);
+//                }
+                HardMediaData d = hardMediaData.copy();
+                synchronized (Lock) {
+                    if (track == audioTrack) {
+                        List<HardMediaData> dataList = audioCache.getLast();
+                        dataList.add(d);
+                    } else {
+                        List<HardMediaData> dataList = videoCache.getLast();
+                        dataList.add(d);
+                    }
+                    if(sectionView!=null){
+                        sectionView.setRenderBeans(videoCache);
+                    }
+
                 }
-                while (!cache.offer(d)) {
-                    AvLog.d(tag, "put data to the cache : poll");
-                    HardMediaData c = cache.poll();
-                    recycler.put(c.index, c);
-                }
+//                while (!cache.offer(d)) {
+//                    AvLog.d(tag, "put data to the cache : poll");
+//                    HardMediaData c = cache.poll();
+//                    recycler.put(c.index, c);
+//                }
+
             }
         }
         return 0;
@@ -170,13 +192,35 @@ public class StrengthenMp4MuxStore implements IHardStore {
 
     @Override
     public void writeToMux() {
-        while (!cache.isEmpty()) {
-            HardMediaData data = cache.poll();
-            AvLog.d(tag, "data is null?" + (data == null));
-            if (muxStarted && data != null) {
+        while (!audioCache.isEmpty()) {
+            List<HardMediaData> dataList = audioCache.poll();
+            for (HardMediaData data : dataList) {
                 mMuxer.writeSampleData(data.index, data.data, data.info);
-                recycler.put(data.index, data);
             }
         }
+        while (!videoCache.isEmpty()) {
+            List<HardMediaData> dataList = videoCache.poll();
+            for (HardMediaData data : dataList) {
+                mMuxer.writeSampleData(data.index, data.data, data.info);
+            }
+        }
+    }
+
+    @Override
+    public void addSection() {
+        synchronized (Lock) {
+            videoCache.add(new LinkedList<HardMediaData>());
+            audioCache.add(new LinkedList<HardMediaData>());
+        }
+    }
+
+    @Override
+    public Queue<List<HardMediaData>> getDataQueue() {
+        return null;
+    }
+
+    @Override
+    public void setSectionView(BreakPointView sectionView) {
+        this.sectionView=sectionView;
     }
 }

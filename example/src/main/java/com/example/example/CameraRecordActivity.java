@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.example.view.BreakPointView;
+import com.wuwang.aavt.view.BreakPointView;
 import com.wuwang.aavt.av.CameraRecorder2;
 
 import java.util.concurrent.ExecutorService;
@@ -37,15 +37,9 @@ public class CameraRecordActivity extends AppCompatActivity {
     private Runnable captureRunable = new Runnable() {
         @Override
         public void run() {
-            while (isRecording) {
-                breakPointView.addTime();
-                breakPointView.setRecord(true);
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            mCamera.addData();
+            mCamera.startRecord();
+            mCamera.pause(false);
         }
     };
     private Runnable taskRunnable=new Runnable() {
@@ -71,18 +65,18 @@ public class CameraRecordActivity extends AppCompatActivity {
         mExecutor = Executors.newCachedThreadPool();
         mCamera =new CameraRecorder2();
         mCamera.setOutputPath(tempPath);
+        mCamera.setSectionView(breakPointView);
         btnRecord.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         handler.postDelayed(taskRunnable,500);
-                        mCamera.startRecord();
                         break;
                     case MotionEvent.ACTION_UP:
                         isRecording = false;
-                        breakPointView.setRecord(false);
                         handler.removeCallbacks(taskRunnable);
+                        mCamera.pause(true);
                         break;
                 }
                 return false;

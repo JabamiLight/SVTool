@@ -1,4 +1,4 @@
-package com.example.example.utils;
+package com.wuwang.aavt.utils;
 
 import android.app.Activity;
 import android.content.Context;
