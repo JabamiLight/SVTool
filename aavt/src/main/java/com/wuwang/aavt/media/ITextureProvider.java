@@ -31,6 +31,8 @@ public interface ITextureProvider {
      */
     Point open(SurfaceTexture surface);
 
+    void switchCamera();
+
     /**
      * 关闭视频流数据源
      */

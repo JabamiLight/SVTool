@@ -17,6 +17,7 @@ import android.annotation.TargetApi;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.Build;
+import android.util.Log;
 
 import com.wuwang.aavt.log.AvLog;
 import com.wuwang.aavt.media.av.AvException;
@@ -50,7 +51,7 @@ public class StrengthenMp4MuxStore implements IHardStore {
     private int videoTrack = -1;
     private final Object Lock = new Object();
     private boolean muxStarted = false;
-    private ArrayDeque<List<HardMediaData>> videoCache, audioCache;
+    private ArrayDeque<LinkedList<HardMediaData>> videoCache, audioCache;
     private Recycler<HardMediaData> recycler;
     private ExecutorService exec;
     private BreakPointView sectionView;
@@ -129,6 +130,10 @@ public class StrengthenMp4MuxStore implements IHardStore {
                     ret = videoTrack;
                 }
                 startMux();
+            } else {
+                if (audioTrack != -1 && videoTrack != -1) {
+                    return videoTrack;
+                }
             }
         }
         return ret;
@@ -151,7 +156,8 @@ public class StrengthenMp4MuxStore implements IHardStore {
     @Override
     public int addData(int track, HardMediaData hardMediaData) {
         if (track >= 0) {
-            AvLog.d(tag, "addData->" + track + "/" + audioTrack + "/" + videoTrack);
+//            AvLog.d(tag, "addData->" + track + "/" + audioTrack + "/" + videoTrack);
+            Log.e("tedu", "addData: track" + track + "   videoTrack" + videoTrack);
             hardMediaData.index = track;
             if (track == audioTrack || track == videoTrack) {
 //                HardMediaData d = recycler.poll(track);
@@ -163,14 +169,26 @@ public class StrengthenMp4MuxStore implements IHardStore {
                 HardMediaData d = hardMediaData.copy();
                 synchronized (Lock) {
                     if (track == audioTrack) {
+                        try {
                         List<HardMediaData> dataList = audioCache.getLast();
-                        dataList.add(d);
+                        if (d.info.presentationTimeUs >= currentAudioTime())
+                            dataList.add(d);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     } else {
-                        List<HardMediaData> dataList = videoCache.getLast();
-                        dataList.add(d);
+
+                        try {
+                            List<HardMediaData> dataList = videoCache.getLast();
+                            if (d.info.presentationTimeUs >= currentVideoTime())
+                                dataList.add(d);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                     }
-                    if(sectionView!=null){
-                        sectionView.setRenderBeans(videoCache);
+                    if (sectionView != null) {
+                        sectionView.setRenderBeans(audioCache);
                     }
 
                 }
@@ -221,6 +239,27 @@ public class StrengthenMp4MuxStore implements IHardStore {
 
     @Override
     public void setSectionView(BreakPointView sectionView) {
-        this.sectionView=sectionView;
+        this.sectionView = sectionView;
+    }
+
+    @Override
+    public long currentVideoTime() {
+        try {
+            if (videoCache.getLast().getLast() == null) return 0;
+
+        } catch (Exception e) {
+            return 0;
+        }
+        return videoCache.getLast().getLast().info.presentationTimeUs;
+    }
+
+    @Override
+    public long currentAudioTime() {
+        try {
+            if (audioCache.getLast().getLast() == null) return 0;
+        } catch (Exception e) {
+            return 0;
+        }
+        return audioCache.getLast().getLast().info.presentationTimeUs;
     }
 }

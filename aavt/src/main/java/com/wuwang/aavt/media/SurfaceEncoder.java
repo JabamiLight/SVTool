@@ -19,6 +19,7 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.opengl.EGLSurface;
 import android.os.Build;
+import android.util.Log;
 
 import com.wuwang.aavt.log.AvLog;
 import com.wuwang.aavt.media.hard.HardMediaData;
@@ -57,17 +58,18 @@ public class SurfaceEncoder extends SurfaceShower {
         super.setOnDrawEndListener(new OnDrawEndListener() {
             @Override
             public void onDrawEnd(EGLSurface surface, RenderBean bean) {
-                AvLog.d(TAG, "onDrawEnd start-->");
                 if (bean.timeStamp != -1) {
                     bean.egl.setPresentationTime(surface, bean.timeStamp * 1000);
                 } else {
                     if (startTime == -1) {
                         startTime = bean.textureTime;
                     }
+                    if(pause){
+                        startTime=bean.textureTime-mStore.currentVideoTime()*1000;
+                    }
                     bean.egl.setPresentationTime(surface, bean.textureTime - startTime);
                 }
                 videoEncodeStep(false);
-                AvLog.e(TAG, "onDrawEnd end-->");
                 if (mListener != null) {
                     mListener.onDrawEnd(surface, bean);
                 }
@@ -108,7 +110,6 @@ public class SurfaceEncoder extends SurfaceShower {
     }
 
     private void openVideoEncoder() {
-        AvLog.d(TAG, "openVideoEncoder startTime-->");
         if (mVideoEncoder == null) {
             try {
                 MediaFormat format = convertVideoConfigToFormat(mConfig.mVideo);
@@ -122,11 +123,9 @@ public class SurfaceEncoder extends SurfaceShower {
                 e.printStackTrace();
             }
         }
-        AvLog.d(TAG, "openVideoEncoder endTime-->");
     }
 
     private void closeVideoEncoder() {
-        AvLog.d(TAG, "closeEncoder");
         if (mVideoEncoder != null) {
             mVideoEncoder.stop();
             mVideoEncoder.release();
@@ -136,7 +135,6 @@ public class SurfaceEncoder extends SurfaceShower {
 
 
     private synchronized boolean videoEncodeStep(boolean isEnd) {
-        AvLog.d(TAG, "videoEncodeStep:" + isEncodeStarted + "/" + isEnd);
         if (isEncodeStarted ) {
             if (isEnd) {
                 mVideoEncoder.signalEndOfInputStream();
@@ -144,13 +142,14 @@ public class SurfaceEncoder extends SurfaceShower {
             MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
             while (true) {
                 int mOutputIndex = mVideoEncoder.dequeueOutputBuffer(info, TIME_OUT);
-                AvLog.i(TAG, "videoEncodeStep:mOutputIndex=" + mOutputIndex);
+                Log.d("tedu", "videoEncodeStep: "+mOutputIndex);
                 if (mOutputIndex >= 0) {
                     if ((info.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
                         info.size = 0;
                     }
                     ByteBuffer buffer = CodecUtil.getOutputBuffer(mVideoEncoder, mOutputIndex);
                     if (mStore != null&& !pause) {
+                        Log.v("tedu", "videoEncodeStep: addData"+mVideoTrack);
                         mStore.addData(mVideoTrack, new HardMediaData(buffer, info));
                     }
                     mVideoEncoder.releaseOutputBuffer(mOutputIndex, false);
@@ -161,6 +160,7 @@ public class SurfaceEncoder extends SurfaceShower {
                         break;
                     }
                 } else if (mOutputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+                    Log.d("tedu", "videoEncodeStep: addTrack");
                     MediaFormat format = mVideoEncoder.getOutputFormat();
                     if (mStore != null) {
                         mVideoTrack = mStore.addTrack(format);

@@ -27,7 +27,9 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         }).askPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO);
+                Manifest.permission.CAMERA,Manifest.permission.RECORD_AUDIO
+
+        );
     }
 
     @Override

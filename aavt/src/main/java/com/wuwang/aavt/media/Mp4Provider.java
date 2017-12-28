@@ -247,6 +247,11 @@ public class Mp4Provider implements ITextureProvider {
     }
 
     @Override
+    public void switchCamera() {
+
+    }
+
+    @Override
     public void close() {
         isUserWantToStop=true;
     }

@@ -145,5 +145,10 @@ public enum MatrixUtils {
         return m;
     }
 
+
+    public static float[] rotate(float[] m,float angle){
+        Matrix.rotateM(m,0,angle,0,0,1);
+        return m;
+    }
 }
 

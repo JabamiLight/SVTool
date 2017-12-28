@@ -12,7 +12,9 @@ import android.view.animation.LinearInterpolator;
 import com.wuwang.aavt.media.hard.HardMediaData;
 import com.wuwang.aavt.utils.ScreenUtils;
 
+import java.util.ArrayDeque;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
@@ -35,12 +37,12 @@ public class BreakPointView extends View {
     /**
      * 总的录制时间
      */
-    private float totalMilles = 30000;
+    private float totalMilles = 15000;
 
     /**
      * 时间数据
      */
-    private Queue<List<HardMediaData>> renderBeans ;
+    private Queue<LinkedList<HardMediaData>> renderBeans ;
 
     /**
      * 时间间隔
@@ -80,7 +82,7 @@ public class BreakPointView extends View {
 
     }
 
-    public void setRenderBeans(Queue<List<HardMediaData>> renderBeans) {
+    public void setRenderBeans(ArrayDeque<LinkedList<HardMediaData>> renderBeans) {
         this.renderBeans = renderBeans;
         postInvalidate();
     }
@@ -109,7 +111,7 @@ public class BreakPointView extends View {
 
         float startWidth = 0;
         if (renderBeans != null && !renderBeans.isEmpty()) {
-            Iterator<List<HardMediaData>> it = renderBeans.iterator();
+            Iterator<LinkedList<HardMediaData>> it = renderBeans.iterator();
             while (it.hasNext()) {
                 List<HardMediaData> list = it.next();
                 if(list==null||list.isEmpty()) continue;

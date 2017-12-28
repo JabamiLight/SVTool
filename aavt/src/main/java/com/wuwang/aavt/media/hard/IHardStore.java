@@ -35,11 +35,17 @@ public interface IHardStore extends IStore<MediaFormat,HardMediaData> {
      */
     void setOutputPath(String path);
 
-    void writeToMux();
 
+    void writeToMux();
     void addSection();
 
     Queue<List<HardMediaData>> getDataQueue();
 
     void setSectionView(BreakPointView sectionView);
+
+    long currentVideoTime();
+    long currentAudioTime();
+
+
+
 }

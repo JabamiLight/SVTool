@@ -27,7 +27,7 @@ public class SoundRecorder {
 
     private AudioRecord mRecord;
     private int mRecordBufferSize=0;
-    private int mRecordSampleRate=48000;   //音频采样率
+    private int mRecordSampleRate=44100;   //音频采样率
     private int mRecordChannelConfig= AudioFormat.CHANNEL_IN_STEREO;   //音频录制通道,默认为立体声
     private int mRecordAudioFormat=AudioFormat.ENCODING_PCM_16BIT; //音频录制格式，默认为PCM16Bit
     private MediaCodec mAudioEncoder;
@@ -54,7 +54,6 @@ public class SoundRecorder {
     public void start(){
         if(!isStarted){
             stopFlag=false;
-
             mRecordBufferSize = AudioRecord.getMinBufferSize(mRecordSampleRate,
                     mRecordChannelConfig, mRecordAudioFormat)*2;
             mRecord=new AudioRecord(MediaRecorder.AudioSource.MIC,mRecordSampleRate,mRecordChannelConfig,
@@ -87,19 +86,21 @@ public class SoundRecorder {
                     isStarted=false;
                 }
             });
-            thread.start();
             startTime=SystemClock.elapsedRealtimeNanos();
             isStarted=true;
+            thread.start();
         }
     }
 
     private synchronized boolean audioEncodeStep(boolean isEnd){
         if(isStarted){
-            AvLog.d("audioEncodeStep");
             int inputIndex=mAudioEncoder.dequeueInputBuffer(TIME_OUT);
             if(inputIndex>=0){
                 ByteBuffer buffer= CodecUtil.getInputBuffer(mAudioEncoder,inputIndex);
                 buffer.clear();
+                if(pause){
+                    startTime=SystemClock.elapsedRealtimeNanos()-mStore.currentAudioTime()*1000;
+                }
                 long time= (SystemClock.elapsedRealtimeNanos()-startTime)/1000;
                 int length=mRecord.read(buffer,mRecordBufferSize);
                 if(length>=0){

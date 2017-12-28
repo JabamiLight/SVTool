@@ -1,5 +1,6 @@
 package com.example.example;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -12,8 +13,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.wuwang.aavt.view.BreakPointView;
 import com.wuwang.aavt.av.CameraRecorder2;
+import com.wuwang.aavt.view.BreakPointView;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,11 +25,11 @@ public class CameraRecordActivity extends AppCompatActivity {
     private BreakPointView breakPointView;
     private ExecutorService mExecutor;
     private boolean isRecording;
-    private boolean isPreviewOpen=false;
+    private boolean isPreviewOpen = false;
     private CameraRecorder2 mCamera;
 
 
-    private Handler handler=new Handler(){
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -38,11 +39,12 @@ public class CameraRecordActivity extends AppCompatActivity {
         @Override
         public void run() {
             mCamera.addData();
-            mCamera.startRecord();
             mCamera.pause(false);
+            mCamera.startRecord();
+
         }
     };
-    private Runnable taskRunnable=new Runnable() {
+    private Runnable taskRunnable = new Runnable() {
         @Override
         public void run() {
             isRecording = true;
@@ -53,7 +55,7 @@ public class CameraRecordActivity extends AppCompatActivity {
 
 
     private SurfaceView mSurfaceView;
-    private String tempPath= Environment.getExternalStorageDirectory().getAbsolutePath()+"/test.mp4";
+    private String tempPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/test.mp4";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,9 +63,9 @@ public class CameraRecordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera_record);
         btnRecord = findViewById(R.id.btn_record);
         breakPointView = findViewById(R.id.break_point_view);
-        mSurfaceView= (SurfaceView) findViewById(R.id.surface);
+        mSurfaceView = (SurfaceView) findViewById(R.id.surface);
         mExecutor = Executors.newCachedThreadPool();
-        mCamera =new CameraRecorder2();
+        mCamera = new CameraRecorder2();
         mCamera.setOutputPath(tempPath);
         mCamera.setSectionView(breakPointView);
         btnRecord.setOnTouchListener(new View.OnTouchListener() {
@@ -71,7 +73,7 @@ public class CameraRecordActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        handler.postDelayed(taskRunnable,500);
+                        handler.postDelayed(taskRunnable, 300);
                         break;
                     case MotionEvent.ACTION_UP:
                         isRecording = false;
@@ -96,7 +98,7 @@ public class CameraRecordActivity extends AppCompatActivity {
                 mCamera.setSurface(holder.getSurface());
                 mCamera.setPreviewSize(width, height);
                 mCamera.startPreview();
-                isPreviewOpen=true;
+                isPreviewOpen = true;
             }
 
             @Override
@@ -115,12 +117,24 @@ public class CameraRecordActivity extends AppCompatActivity {
         finish();
     }
 
+    @SuppressLint("NewApi")
     public void flash(View view) {
         view.setSelected(!view.isSelected());
+        mCamera.setFlash(view.isSelected());
+//        CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+//        try {
+//            if (view.isSelected()) {
+//                manager.setTorchMode("0", true);
+//            } else {
+//                manager.setTorchMode("0", false);
+//            }
+//        } catch (CameraAccessException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void switchCamera(View view) {
-
+        mCamera.switchCarmer();
     }
 
 

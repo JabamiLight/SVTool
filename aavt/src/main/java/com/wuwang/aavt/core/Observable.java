@@ -1,7 +1,6 @@
 package com.wuwang.aavt.core;
 
 import java.util.ArrayList;
-import java.util.Observer;
 
 /*
  * Created by Wuwang on 2017/10/23
@@ -26,7 +25,7 @@ public class Observable<Type> implements IObservable<Type> {
     }
 
     @Override
-    public void notify(Type type) {
+    public void  notify(Type type) {
         for (IObserver<Type> t:temp){
             t.onCall(type);
         }

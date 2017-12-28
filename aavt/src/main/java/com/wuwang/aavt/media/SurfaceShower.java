@@ -37,6 +37,7 @@ public class SurfaceShower implements IObserver<RenderBean> {
     private int mHeight;
     private int mMatrixType= MatrixUtils.TYPE_CENTERCROP;
     private OnDrawEndListener mListener;
+    private int cameraId=0;
 
     public void setOutputSize(int width,int height){
         this.mWidth=width;
@@ -49,6 +50,7 @@ public class SurfaceShower implements IObserver<RenderBean> {
      */
     public void setSurface(Object surface){
         this.mSurface=surface;
+        mShowSurface=null;
     }
 
     /**
@@ -80,7 +82,13 @@ public class SurfaceShower implements IObserver<RenderBean> {
                 mFilter.sizeChanged(rb.sourceWidth, rb.sourceHeight);
                 MatrixUtils.getMatrix(mFilter.getVertexMatrix(),mMatrixType,rb.sourceWidth,rb.sourceHeight,
                         mWidth,mHeight);
-                MatrixUtils.flip(mFilter.getVertexMatrix(),true, false);
+                if(cameraId==1){
+                    MatrixUtils.flip(mFilter.getVertexMatrix(),true,false);
+                    MatrixUtils.rotate(mFilter.getVertexMatrix(),180);
+                }else{
+                    MatrixUtils.flip(mFilter.getVertexMatrix(),false,true);
+                }
+//                MatrixUtils.flip(mFilter.getVertexMatrix(),true, false);
             }
             rb.egl.makeCurrent(mShowSurface);
             GLES20.glViewport(0,0,mWidth,mHeight);
@@ -100,6 +108,11 @@ public class SurfaceShower implements IObserver<RenderBean> {
      */
     public void setOnDrawEndListener(OnDrawEndListener listener){
         this.mListener=listener;
+    }
+
+    public void setCameraId(int id) {
+        this.cameraId=id;
+
     }
 
     public interface OnDrawEndListener{

@@ -15,7 +15,6 @@ package com.wuwang.aavt.av;
 
 import com.wuwang.aavt.core.Renderer;
 import com.wuwang.aavt.media.CameraProvider;
-import com.wuwang.aavt.media.ITextureProvider;
 import com.wuwang.aavt.media.SoundRecorder;
 import com.wuwang.aavt.media.SurfaceEncoder;
 import com.wuwang.aavt.media.SurfaceShower;
@@ -38,7 +37,7 @@ import java.util.Queue;
 public class CameraRecorder2 {
 
     private VideoSurfaceProcessor mTextureProcessor;
-    private ITextureProvider mCameraProvider;
+    private CameraProvider mCameraProvider;
     private SurfaceShower mShower;
     private SurfaceEncoder mSurfaceStore;
     private IHardStore mMuxer;
@@ -141,12 +140,9 @@ public class CameraRecorder2 {
         mSoundRecord.stop();
         mSurfaceStore.close();
         try {
-            Thread.sleep(1000);
             mMuxer.writeToMux();
             mMuxer.close();
         } catch (AvException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -168,5 +164,18 @@ public class CameraRecorder2 {
 
     public void setSectionView(BreakPointView sectionView) {
         mMuxer.setSectionView(sectionView);
+    }
+
+    public void switchCarmer() {
+        mTextureProcessor.stop();
+        mCameraProvider.switchCamera();
+        mShower.setCameraId(mCameraProvider.getCameraId());
+        mSurfaceStore.setCameraId(mCameraProvider.getCameraId());
+        mTextureProcessor.start();
+    }
+
+
+    public void setFlash(boolean flash) {
+        mCameraProvider.setFlash(flash);
     }
 }

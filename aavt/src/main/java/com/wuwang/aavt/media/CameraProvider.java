@@ -31,28 +31,37 @@ import java.util.concurrent.Semaphore;
 public class CameraProvider implements ITextureProvider {
 
     private Camera mCamera;
-    private int cameraId=1;
+    private int cameraId = 0;
     private Semaphore mFrameSem;
-    private String tag=getClass().getSimpleName();
+    private String tag = getClass().getSimpleName();
 
     @Override
     public Point open(final SurfaceTexture surface) {
-        final Point size=new Point();
+        final Point size = new Point();
         try {
-            mFrameSem=new Semaphore(0);
-            mCamera=Camera.open(cameraId);
+            mFrameSem = new Semaphore(0);
+            mCamera = Camera.open(cameraId);
             mCamera.setPreviewTexture(surface);
             //设置帧数可获取的接口
             surface.setOnFrameAvailableListener(frameListener);
-            Camera.Size s=mCamera.getParameters().getPreviewSize();
+            Camera.Size s = mCamera.getParameters().getPreviewSize();
+            Camera.Parameters para = mCamera.getParameters();
+            para.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            para.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+            mCamera.setParameters(para);
             mCamera.startPreview();
-            size.x=s.height;
-            size.y=s.width;
-            AvLog.i(tag,"Camera Opened");
+            size.x = s.height;
+            size.y = s.width;
+            AvLog.i(tag, "Camera Opened");
         } catch (IOException e) {
             e.printStackTrace();
         }
         return size;
+    }
+
+    @Override
+    public void switchCamera() {
+        cameraId = cameraId == 1 ? 0 : 1;
     }
 
     @Override
@@ -62,7 +71,7 @@ public class CameraProvider implements ITextureProvider {
 
         mCamera.stopPreview();
         mCamera.release();
-        mCamera=null;
+        mCamera = null;
     }
 
     @Override
@@ -85,15 +94,28 @@ public class CameraProvider implements ITextureProvider {
         return true;
     }
 
-    private SurfaceTexture.OnFrameAvailableListener frameListener=new SurfaceTexture.OnFrameAvailableListener() {
+    private SurfaceTexture.OnFrameAvailableListener frameListener = new SurfaceTexture
+            .OnFrameAvailableListener() {
 
         @Override
         public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-            AvLog.d(tag,"onFrameAvailable");
             mFrameSem.drainPermits();
             mFrameSem.release();
         }
 
     };
 
+
+    public int getCameraId() {
+        return cameraId;
+    }
+
+    public void setFlash(boolean flash) {
+        Camera.Parameters para = mCamera.getParameters();
+        if (flash)
+            para.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+        else
+            para.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+        mCamera.setParameters(para);
+    }
 }

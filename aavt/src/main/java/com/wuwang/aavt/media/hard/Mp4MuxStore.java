@@ -122,6 +122,16 @@ public class Mp4MuxStore implements IHardStore {
     }
 
     @Override
+    public long currentVideoTime() {
+        return 0;
+    }
+
+    @Override
+    public long currentAudioTime() {
+        return 0;
+    }
+
+    @Override
     public void close() throws AvException {
         synchronized (LOCK){
             try {
