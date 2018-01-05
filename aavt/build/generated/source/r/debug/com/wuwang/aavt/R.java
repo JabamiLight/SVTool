@@ -702,6 +702,21 @@ public final class R {
         public static int select_dialog_singlechoice_material = 0x7f0f002d;
         public static int support_simple_spinner_dropdown_item = 0x7f0f002e;
     }
+    public static final class mipmap {
+        public static int ic_back_white = 0x7f110001;
+        public static int ic_back_yellow = 0x7f110002;
+        public static int ic_cut = 0x7f110003;
+        public static int ic_loading_point_grey = 0x7f110004;
+        public static int ic_loading_point_white = 0x7f110005;
+        public static int ic_logo = 0x7f110006;
+        public static int ic_media_fullscreen_shrink_white = 0x7f110007;
+        public static int ic_media_fullscreen_stretch_white = 0x7f110008;
+        public static int ic_media_play = 0x7f110009;
+        public static int ic_media_stop = 0x7f11000a;
+        public static int ic_seekbar_thumb = 0x7f11000b;
+        public static int ic_slider_left = 0x7f11000c;
+        public static int ic_slider_right = 0x7f11000d;
+    }
     public static final class string {
         public static int abc_action_bar_home_description = 0x7f150001;
         public static int abc_action_bar_home_description_format = 0x7f150002;

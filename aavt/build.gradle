@@ -2,12 +2,12 @@ apply plugin: 'com.android.library'
 group='com.wuwang.aavt'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 25
+        minSdkVersion 18
+        targetSdkVersion 26
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 

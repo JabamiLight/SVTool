@@ -147,7 +147,6 @@ public class VideoSurfaceProcessor{
         mRenderer.create();
         mRenderer.sizeChanged(mSourceWidth, mSourceHeight);
         mRenderer.setFlag(mProvider.isLandscape()?WrapRenderer.TYPE_CAMERA:WrapRenderer.TYPE_MOVE);
-
         //用于其他的回调
         RenderBean rb=new RenderBean();
         rb.egl=egl;
@@ -159,6 +158,7 @@ public class VideoSurfaceProcessor{
         //要求数据源必须同步填充SurfaceTexture，填充完成前等待
         while (!mProvider.frame()&&mGLThreadFlag){
             mInputSurfaceTexture.updateTexImage();
+            //这里是相机纹理类型，转换成2D纹理类型，方便后面base处理
             mInputSurfaceTexture.getTransformMatrix(mRenderer.getTextureMatrix());
 //            AvLog.d(TAG,"timestamp:"+ mInputSurfaceTexture.getTimestamp());
             sourceFrame.bindFrameBuffer(mSourceWidth, mSourceHeight);
