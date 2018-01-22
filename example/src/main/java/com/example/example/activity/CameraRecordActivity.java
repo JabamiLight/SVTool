@@ -1,4 +1,4 @@
-package com.example.example;
+package com.example.example.activity;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.example.R;
 import com.wuwang.aavt.av.CameraRecorder2;
 import com.wuwang.aavt.view.BreakPointView;
 

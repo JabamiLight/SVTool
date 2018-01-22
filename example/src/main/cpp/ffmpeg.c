@@ -105,7 +105,7 @@
 #include "cmdutils.h"
 
 #include "libavutil/avassert.h"
-
+#include "logutils.h"
 const char program_name[] = "ffmpeg";
 const int program_birth_year = 2000;
 
@@ -4528,9 +4528,28 @@ static int64_t getmaxrss(void)
 
 static void log_callback_null(void *ptr, int level, const char *fmt, va_list vl)
 {
+    static int print_prefix = 1;
+    static int count;
+    static char prev[1024];
+    char line[1024];
+    static int is_atty;
+
+    av_log_format_line(ptr, level, fmt, vl, line, sizeof(line), &print_prefix);
+
+    strcpy(prev, line);
+    //sanitize((uint8_t *)line);
+
+    if (level <= AV_LOG_WARNING)
+    {
+        LOGE("%s", line);
+    }
+    else
+    {
+        LOGD("%s", line);
+    }
 }
 
-int jxRun(int argc, char **argv)
+int ffmpeg_exec(int argc, char **argv)
 {
     int i, ret;
     int64_t ti;
@@ -4542,6 +4561,9 @@ int jxRun(int argc, char **argv)
     setvbuf(stderr,NULL,_IONBF,0); /* win32 runtime needs this */
 
     av_log_set_flags(AV_LOG_SKIP_REPEATED);
+    //设置日志接口
+    av_log_set_callback(log_callback_null);
+
     parse_loglevel(argc, argv, options);
 
     if(argc>1 && !strcmp(argv[1], "-d")){
@@ -4550,7 +4572,6 @@ int jxRun(int argc, char **argv)
         argc--;
         argv++;
     }
-
     avcodec_register_all();
 #if CONFIG_AVDEVICE
     avdevice_register_all();
@@ -4578,10 +4599,10 @@ int jxRun(int argc, char **argv)
         exit_program(1);
     }
 
-//     if (nb_input_files == 0) {
-//         av_log(NULL, AV_LOG_FATAL, "At least one input file must be specified\n");
-//         exit_program(1);
-//     }
+     if (nb_input_files == 0) {
+         av_log(NULL, AV_LOG_FATAL, "At least one input file must be specified\n");
+         exit_program(1);
+     }
 
     for (i = 0; i < nb_output_files; i++) {
         if (strcmp(output_files[i]->ctx->oformat->name, "rtp"))
@@ -4600,21 +4621,12 @@ int jxRun(int argc, char **argv)
     if ((decode_error_stat[0] + decode_error_stat[1]) * max_error_rate < decode_error_stat[1])
         exit_program(69);
 
+
+
     exit_program(received_nb_signals ? 255 : main_return_code);
 
 
-    nb_filtergraphs = 0;
-    progress_avio = NULL;
 
-    input_streams = NULL;
-    nb_input_streams = 0;
-    input_files = NULL;
-    nb_input_files = 0;
-
-    output_streams = NULL;
-    nb_output_streams = 0;
-    output_files = NULL;
-    nb_output_files = 0;
 
     return main_return_code;
 }

@@ -1,25 +1,18 @@
-package com.example.example;
+package com.example.example.activity;
 
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.example.PermissionAsker;
+import com.example.example.R;
+
 public class MainActivity extends AppCompatActivity {
     private PermissionAsker mAsker;
-
-    static {
-        System.loadLibrary("native-lib");
-        System.loadLibrary("avcodec");
-        System.loadLibrary("avformat");
-        System.loadLibrary("avutil");
-        System.loadLibrary("swscale");
-        System.loadLibrary("fdk-aac");
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +51,8 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(this, SplitVideoActivity.class));
     }
 
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        Log.d("tedu", "onPostResume: ");
+    public void combineVideo(View view) {
+        startActivity(new Intent(this, FfmpegCmdActivity.class));
+
     }
 }

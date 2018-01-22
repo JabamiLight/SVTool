@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <math.h>
+#include "logutils.h"
 
 /* Include only the enabled headers since some compilers (namely, Sun
    Studio) will not omit unused inline functions and create undefined
@@ -54,6 +55,7 @@
 #include "libavutil/ffversion.h"
 #include "libavutil/version.h"
 #include "cmdutils.h"
+#include "ffmpeg_thread.h"
 #if CONFIG_NETWORK
 #include "libavformat/network.h"
 #endif
@@ -126,13 +128,29 @@ void register_exit(void (*cb)(int ret))
     program_exit = cb;
 }
 
-int exit_program(int ret)
+void exit_program(int ret)
 {
     av_log(NULL,AV_LOG_FATAL,"Quit at %d",ret);
     if (program_exit)
         program_exit(ret);
 
 //    exit(ret);
+
+    //退出时清除数据
+    nb_filtergraphs = 0;
+    progress_avio = NULL;
+
+    input_streams = NULL;
+    nb_input_streams = 0;
+    input_files = NULL;
+    nb_input_files = 0;
+
+    output_streams = NULL;
+    nb_output_streams = 0;
+    output_files = NULL;
+    nb_output_files = 0;
+
+    ffmpeg_thread_exit(ret);
 }
 
 double parse_number_or_die(const char *context, const char *numstr, int type,
@@ -197,15 +215,15 @@ void show_help_options(const OptionDef *options, const char *msg, int req_flags,
     printf("\n");
 }
 
-void show_help_children(const AVClass *class, int flags)
+void show_help_children(const AVClass *clazz, int flags)
 {
     const AVClass *child = NULL;
-    if (class->option) {
-        av_opt_show2(&class, NULL, flags, 0);
+    if (clazz->option) {
+        av_opt_show2(&clazz, NULL, flags, 0);
         printf("\n");
     }
 
-    while (child = av_opt_child_class_next(class, child))
+    while (child = av_opt_child_class_next(clazz, child))
         show_help_children(child, flags);
 }
 
@@ -447,6 +465,7 @@ int locate_option(int argc, char **argv, const OptionDef *options,
 
     for (i = 1; i < argc; i++) {
         const char *cur_opt = argv[i];
+//        LOGD("cur_opt %s %d",cur_opt[12],i);
 
         if (*cur_opt++ != '-')
             continue;

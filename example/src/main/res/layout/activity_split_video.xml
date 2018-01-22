@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.example.SplitVideoActivity">
+    tools:context="com.example.example.activity.SplitVideoActivity">
 
 
 
@@ -20,5 +20,12 @@
         android:text="剪切"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
+    <Button
+        android:onClick="spilitFfmepg"
+        android:text="剪切Ffmpeg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
 
 </LinearLayout>

@@ -59,7 +59,7 @@ void register_exit(void (*cb)(int ret));
 /**
  * Wraps exit with a program-specific cleanup routine.
  */
-int exit_program(int ret) av_noreturn;
+void exit_program(int ret);
 
 /**
  * Initialize dynamic library loading
@@ -185,7 +185,7 @@ typedef struct OptionDef {
 #define OPT_DOUBLE 0x20000
 #define OPT_INPUT  0x40000
 #define OPT_OUTPUT 0x80000
-     union {
+    union {
         void *dst_ptr;
         int (*func_arg)(void *, const char *, const char *);
         size_t off;
@@ -210,7 +210,7 @@ void show_help_options(const OptionDef *options, const char *msg, int req_flags,
  * Show help for all options with given flags in class and all its
  * children.
  */
-void show_help_children(const AVClass *class, int flags);
+void show_help_children(const AVClass *clazz, int flags);
 
 /**
  * Per-fftool specific help handler. Implemented in each

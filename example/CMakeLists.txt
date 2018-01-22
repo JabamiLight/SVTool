@@ -12,6 +12,7 @@ add_library(
               src/main/cpp/ffmpeg_filter.c
               src/main/cpp/ffmpeg_opt.c
               src/main/cpp/ffmpeg_cmd_run.cpp
+              src/main/cpp/ffmpeg_thread.c
 
              )
 find_library(
@@ -20,6 +21,8 @@ find_library(
               log )
 
 include_directories(libs/include)
+include_directories(ffmpeg-3.2.5/)
+
 set(DIR ../../../../libs)
 
 add_library(avcodec

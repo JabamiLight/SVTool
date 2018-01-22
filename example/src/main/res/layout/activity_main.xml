@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.example.MainActivity">
+    tools:context="com.example.example.activity.MainActivity">
 
     <Button
         android:onClick="breakPoint"
@@ -17,6 +17,11 @@
         android:onClick="splitVideo"
         android:layout_width="match_parent"
         android:text="视频剪切"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:onClick="combineVideo"
+        android:layout_width="match_parent"
+        android:text="ffmpeg视频命令"
         android:layout_height="wrap_content"/>
 
 </LinearLayout>
